@@ -1,0 +1,14 @@
+# Backend
+backend/.env
+backend/node_modules
+
+# Flutter
+mobile/.env
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/build/
+
+# Dashboard
+dashboard/.env.local
+dashboard/.next
+dashboard/node_modules

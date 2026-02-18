@@ -4,16 +4,16 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Groq için (tarif oluşturma)
+// Groq metin
 const openai = new OpenAI({
   apiKey: process.env.GROQ_API_KEY,
   baseURL: "https://api.groq.com/openai/v1",
 });
 
-// Gemini için (vision)
+// Gemini fotoğraf
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// Metin input için
+// Metin input için groq
 export async function generateRecipeFromText(ingredients) {
   try {
     const prompt = `
@@ -33,7 +33,7 @@ Return ONLY valid JSON in this format:
 }
 `;
 
-    console.log("🤖 Calling Groq API...");
+    console.log("Calling Groq API...");
 
     const completion = await openai.chat.completions.create({
       model: "llama-3.1-8b-instant",
@@ -42,9 +42,9 @@ Return ONLY valid JSON in this format:
     });
 
     const text = completion.choices[0].message.content;
-    console.log("📄 Raw AI response:", text); // Debug için
+    console.log("Raw AI response:", text); // Debug için
 
-    // ✅ JSON bloğunu regex ile bul
+    // json metnini ayıklama kısmı
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       throw new Error("No JSON found in AI response: " + text);
@@ -57,12 +57,12 @@ Return ONLY valid JSON in this format:
     throw error;
   }
 }
-// Görsel input için - GEMİNİ 2.5 FLASH
+// görsel için input girilip analiz yapıldıktan sonra groq ile tarif oluşturma
 export async function analyzeImageAndGenerateRecipe(base64Image) {
   try {
     console.log("🔍 Analyzing image with Gemini 2.5 Flash...");
 
-    // ✅ BASE64 TEMİZLİĞİ
+    // BASE64 TEMİZLİĞİ-resim çevirme
     let cleanBase64 = base64Image;
 
     if (base64Image.includes(",")) {
@@ -74,7 +74,6 @@ export async function analyzeImageAndGenerateRecipe(base64Image) {
 
     console.log("📸 Base64 length after cleaning:", cleanBase64.length);
 
-    // ✅ GÜNCEL MODEL: gemini-2.5-flash (vision desteği var)
     const model = genAI.getGenerativeModel({
       model: "gemini-2.5-flash",
     });
@@ -93,7 +92,7 @@ export async function analyzeImageAndGenerateRecipe(base64Image) {
     const response = await result.response;
     const ingredientsText = response.text();
 
-    console.log("📄 Gemini response:", ingredientsText);
+    console.log("Gemini response:", ingredientsText);
 
     const ingredientsList = ingredientsText
       .split(",")
@@ -114,8 +113,8 @@ export async function analyzeImageAndGenerateRecipe(base64Image) {
       detectedIngredients: ingredientsList,
     };
   } catch (error) {
-    console.error("❌ Vision error:", error);
-    console.error("❌ Error details:", error.message);
+    console.error("Vision error:", error);
+    console.error("Error details:", error.message);
     throw error;
   }
 }
