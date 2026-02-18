@@ -1,13 +1,3 @@
-// import { GoogleGenAI } from "@google/genai";
-// import dotenv from "dotenv";
-
-// dotenv.config();
-
-// const ai = new GoogleGenAI({
-//   apiKey: process.env.AI_API_KEY,
-// });
-
-// export default ai;
 
 import OpenAI from "openai";
 import dotenv from "dotenv";

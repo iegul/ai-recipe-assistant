@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "881281213289",
+    "project_id": "ancienda-recipe-ai",
+    "storage_bucket": "ancienda-recipe-ai.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:881281213289:android:1c6b700fe2ad5983b893f8",
+        "android_client_info": {
+          "package_name": "com.example.mobil"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9yYQPrgEhGlsxtdqufWXL_Tjwg80W2ek"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
