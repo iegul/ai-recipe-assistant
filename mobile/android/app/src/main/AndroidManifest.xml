@@ -1,5 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<!-- Kamera izni -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <!-- Galeri izni -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <application
+    
         android:label="mobile"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">

@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { db } from "@/lib/firebase";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { fetchAllRecipes } from "@/lib/recipeService";
 import Link from "next/link";
+import { Pie, Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   ArcElement,
@@ -14,7 +14,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { Pie, Bar } from "react-chartjs-2";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 ChartJS.register(
   ArcElement,
@@ -26,9 +26,39 @@ ChartJS.register(
   Legend,
 );
 
+const MEDALS = ["🥇", "🥈", "🥉", "🏅"];
+
+const calculateStats = (recipes) => {
+  const ingredientCount = {};
+
+  recipes.forEach(({ rawIngredients = [] }) => {
+    if (!Array.isArray(rawIngredients)) return;
+    rawIngredients.forEach((ing) => {
+      ingredientCount[ing] = (ingredientCount[ing] || 0) + 1;
+    });
+  });
+
+  const topIngredients = Object.entries(ingredientCount)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([name, count]) => ({ name, count }));
+
+  const byDifficulty = (level) =>
+    recipes.filter((r) => r.difficulty?.toLowerCase() === level).length;
+
+  return {
+    total: recipes.length,
+    text: recipes.filter((r) => r.inputType === "text").length,
+    image: recipes.filter((r) => r.inputType === "image").length,
+    easy: byDifficulty("easy"),
+    medium: byDifficulty("medium"),
+    hard: byDifficulty("hard"),
+    topIngredients,
+  };
+};
+
 export default function Dashboard() {
   const [recipes, setRecipes] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     total: 0,
     text: 0,
@@ -38,60 +68,18 @@ export default function Dashboard() {
     hard: 0,
     topIngredients: [],
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchRecipes();
+    fetchAllRecipes()
+      .then((data) => {
+        setRecipes(data);
+        setStats(calculateStats(data));
+      })
+      .finally(() => setLoading(false));
   }, []);
 
-  const fetchRecipes = async () => {
-    try {
-      const q = query(collection(db, "recipes"), orderBy("createdAt", "desc"));
-      const snapshot = await getDocs(q);
-      const recipesData = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      setRecipes(recipesData);
-      calculateStats(recipesData);
-    } catch (error) {
-      console.error("Error fetching recipes:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const calculateStats = (recipesData) => {
-    const ingredientCount = {};
-
-    recipesData.forEach((recipe) => {
-      // Input type
-      if (recipe.rawIngredients) {
-        recipe.rawIngredients.forEach((ing) => {
-          ingredientCount[ing] = (ingredientCount[ing] || 0) + 1;
-        });
-      }
-    });
-
-    const topIngredients = Object.entries(ingredientCount)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
-      .map(([name, count]) => ({ name, count }));
-
-    setStats({
-      total: recipesData.length,
-      text: recipesData.filter((r) => r.inputType === "text").length,
-      image: recipesData.filter((r) => r.inputType === "image").length,
-      easy: recipesData.filter((r) => r.difficulty?.toLowerCase() === "easy")
-        .length,
-      medium: recipesData.filter(
-        (r) => r.difficulty?.toLowerCase() === "medium",
-      ).length,
-      hard: recipesData.filter((r) => r.difficulty?.toLowerCase() === "hard")
-        .length,
-      topIngredients,
-    });
-  };
+  if (loading) return <LoadingSpinner />;
 
   const inputTypeData = {
     labels: ["Metin", "Fotoğraf"],
@@ -116,39 +104,24 @@ export default function Dashboard() {
     ],
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Yükleniyor...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold text-gray-900">
-              🍳 AI Recipe Dashboard
-            </h1>
-            <Link
-              href="/recipes"
-              className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition"
-            >
-              Tüm Tarifleri Gör
-            </Link>
-          </div>
+        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-gray-900">
+            🍳 AI Recipe Dashboard
+          </h1>
+          <Link
+            href="/recipes"
+            className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition"
+          >
+            Tüm Tarifleri Gör
+          </Link>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <main className="text-black max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <StatCard
             title="Toplam Tarif"
             value={stats.total}
@@ -176,22 +149,16 @@ export default function Dashboard() {
           />
         </div>
 
-        {/* Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Input Type Chart */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Giriş Türü Dağılımı</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ChartCard title="Giriş Türü Dağılımı">
             <div className="h-64 flex items-center justify-center">
               <Pie
                 data={inputTypeData}
                 options={{ maintainAspectRatio: false }}
               />
             </div>
-          </div>
-
-          {/* Difficulty Chart */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Zorluk Dağılımı</h2>
+          </ChartCard>
+          <ChartCard title="Zorluk Dağılımı">
             <div className="h-64">
               <Bar
                 data={difficultyData}
@@ -201,26 +168,17 @@ export default function Dashboard() {
                 }}
               />
             </div>
-          </div>
+          </ChartCard>
         </div>
 
-        {/* Top Ingredients */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-semibold mb-4">
             En Çok Kullanılan Malzemeler
           </h2>
           <div className="space-y-3">
-            {stats.topIngredients.map((ing, index) => (
-              <div key={index} className="flex items-center">
-                <span className="text-2xl mr-3">
-                  {index === 0
-                    ? "🥇"
-                    : index === 1
-                      ? "🥈"
-                      : index === 2
-                        ? "🥉"
-                        : "🏅"}
-                </span>
+            {stats.topIngredients.map((ing, i) => (
+              <div key={i} className="flex items-center">
+                <span className="text-2xl mr-3">{MEDALS[i] ?? "🏅"}</span>
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-medium capitalize">{ing.name}</span>
@@ -230,7 +188,7 @@ export default function Dashboard() {
                     <div
                       className="bg-orange-500 h-2 rounded-full"
                       style={{ width: `${(ing.count / stats.total) * 100}%` }}
-                    ></div>
+                    />
                   </div>
                 </div>
               </div>
@@ -238,8 +196,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Recent Recipes */}
-        <div className="mt-8 bg-white rounded-lg shadow p-6">
+        <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-semibold mb-4">Son Eklenen Tarifler</h2>
           <div className="space-y-3">
             {recipes.slice(0, 5).map((recipe) => (
@@ -269,18 +226,25 @@ export default function Dashboard() {
 
 function StatCard({ title, value, icon, color, isText }) {
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-gray-600 text-sm">{title}</p>
-          <p className={`text-2xl font-bold mt-2 ${isText ? "text-base" : ""}`}>
-            {value}
-          </p>
-        </div>
-        <div className={`text-4xl ${color} bg-opacity-10 p-3 rounded-lg`}>
-          {icon}
-        </div>
+    <div className="bg-white rounded-lg shadow p-6 flex items-center justify-between">
+      <div>
+        <p className="text-gray-600 text-sm">{title}</p>
+        <p className={`font-bold mt-2 ${isText ? "text-base" : "text-2xl"}`}>
+          {value}
+        </p>
       </div>
+      <div className={`text-4xl ${color} bg-opacity-10 p-3 rounded-lg`}>
+        {icon}
+      </div>
+    </div>
+  );
+}
+
+function ChartCard({ title, children }) {
+  return (
+    <div className="bg-white rounded-lg shadow p-6">
+      <h2 className="text-xl font-semibold mb-4">{title}</h2>
+      {children}
     </div>
   );
 }

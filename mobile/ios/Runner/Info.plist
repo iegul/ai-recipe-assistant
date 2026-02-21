@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- Kamera izni -->
+    <key>NSCameraUsageDescription</key>
+    <string>Malzeme fotoğrafı çekmek için kamera erişimi gerekiyor</string>
+    <!-- Galeri izni -->
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Fotoğraf seçmek için galeri erişimi gerekiyor</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>

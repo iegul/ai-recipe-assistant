@@ -23,7 +23,6 @@ class Recipe {
     required this.createdAt,
   });
 
-  // Firebase'den gelen veriden Recipe oluştur
   factory Recipe.fromFirestore(Map<String, dynamic> data, String id) {
     return Recipe(
       id: id,
@@ -47,20 +46,17 @@ class Recipe {
     );
   }
 
-  // Firebase'e kaydetmek için Map'e çevir
-  Map<String, dynamic> toFirestore() {
-    return {
-      'recipeName': recipeName,
-      'ingredients': ingredients.map((i) => i.toMap()).toList(),
-      'steps': steps,
-      'prepTime': prepTime,
-      'difficulty': difficulty,
-      'inputType': inputType,
-      'rawIngredients': rawIngredients,
-      'detectedIngredients': detectedIngredients,
-      'createdAt': createdAt,
-    };
-  }
+  Map<String, dynamic> toFirestore() => {
+    'recipeName': recipeName,
+    'ingredients': ingredients.map((i) => i.toMap()).toList(),
+    'steps': steps,
+    'prepTime': prepTime,
+    'difficulty': difficulty,
+    'inputType': inputType,
+    'rawIngredients': rawIngredients,
+    'detectedIngredients': detectedIngredients,
+    'createdAt': createdAt,
+  };
 }
 
 class Ingredient {
@@ -69,11 +65,8 @@ class Ingredient {
 
   Ingredient({required this.name, required this.quantity});
 
-  factory Ingredient.fromMap(Map<String, dynamic> map) {
-    return Ingredient(name: map['name'] ?? '', quantity: map['quantity'] ?? '');
-  }
+  factory Ingredient.fromMap(Map<String, dynamic> map) =>
+      Ingredient(name: map['name'] ?? '', quantity: map['quantity'] ?? '');
 
-  Map<String, dynamic> toMap() {
-    return {'name': name, 'quantity': quantity};
-  }
+  Map<String, dynamic> toMap() => {'name': name, 'quantity': quantity};
 }

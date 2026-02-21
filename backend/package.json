@@ -8,7 +8,13 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon src/index.js"
   },
-  "keywords": [],
+  "keywords": [
+    "ai",
+    "recipe",
+    "groq",
+    "gemini",
+    "firebase"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {

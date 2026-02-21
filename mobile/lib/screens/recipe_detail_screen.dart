@@ -23,13 +23,14 @@ class RecipeDetailScreen extends StatelessWidget {
             const SizedBox(height: 10),
 
             // Zorluk ve Süre
-            Row(
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
               children: [
                 Chip(
                   avatar: const Icon(Icons.timer, size: 18),
                   label: Text(recipe.prepTime),
                 ),
-                const SizedBox(width: 10),
                 Chip(
                   avatar: const Icon(Icons.bar_chart, size: 18),
                   label: Text(recipe.difficulty),
@@ -53,11 +54,13 @@ class RecipeDetailScreen extends StatelessWidget {
                         children: [
                           Icon(Icons.camera_alt, color: Colors.blue),
                           SizedBox(width: 8),
-                          Text(
-                            'Fotoğraftan Tespit Edilen Malzemeler',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue,
+                          Flexible(
+                            child: Text(
+                              'Fotoğraftan Tespit Edilen Malzemeler',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue,
+                              ),
                             ),
                           ),
                         ],

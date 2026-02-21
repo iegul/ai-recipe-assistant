@@ -3,67 +3,45 @@ import '../models/recipe_model.dart';
 
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final String collectionName = 'recipes';
+  static const _collection = 'recipes';
 
-  // Tarif kaydet
   Future<void> saveRecipe(Recipe recipe) async {
-    try {
-      await _firestore
-          .collection(collectionName)
-          .doc(recipe.id)
-          .set(recipe.toFirestore());
-    } catch (e) {
-      throw Exception('Failed to save recipe: $e');
-    }
+    await _firestore
+        .collection(_collection)
+        .doc(recipe.id)
+        .set(recipe.toFirestore());
   }
 
-  // Tüm tarifleri getir (en yeniden eskiye)
   Stream<List<Recipe>> getRecipes() {
     return _firestore
-        .collection(collectionName)
+        .collection(_collection)
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) {
-          return snapshot.docs.map((doc) {
-            return Recipe.fromFirestore(doc.data(), doc.id);
-          }).toList();
-        });
+        .map(
+          (s) =>
+              s.docs.map((d) => Recipe.fromFirestore(d.data(), d.id)).toList(),
+        );
   }
 
-  // Tek bir tarifi getir
   Future<Recipe?> getRecipe(String id) async {
-    try {
-      final doc = await _firestore.collection(collectionName).doc(id).get();
-      if (doc.exists) {
-        return Recipe.fromFirestore(doc.data()!, doc.id);
-      }
-      return null;
-    } catch (e) {
-      throw Exception('Failed to get recipe: $e');
-    }
+    final doc = await _firestore.collection(_collection).doc(id).get();
+    return doc.exists ? Recipe.fromFirestore(doc.data()!, doc.id) : null;
   }
 
-  // Tarif sil
   Future<void> deleteRecipe(String id) async {
-    try {
-      await _firestore.collection(collectionName).doc(id).delete();
-    } catch (e) {
-      throw Exception('Failed to delete recipe: $e');
-    }
+    await _firestore.collection(_collection).doc(id).delete();
   }
 
-  // Tarifleri arama (tarif adına göre)
   Stream<List<Recipe>> searchRecipes(String query) {
     return _firestore
-        .collection(collectionName)
+        .collection(_collection)
         .orderBy('recipeName')
         .startAt([query])
-        .endAt([query + '\uf8ff'])
+        .endAt(['$query\uf8ff'])
         .snapshots()
-        .map((snapshot) {
-          return snapshot.docs.map((doc) {
-            return Recipe.fromFirestore(doc.data(), doc.id);
-          }).toList();
-        });
+        .map(
+          (s) =>
+              s.docs.map((d) => Recipe.fromFirestore(d.data(), d.id)).toList(),
+        );
   }
 }
