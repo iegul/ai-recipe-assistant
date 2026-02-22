@@ -31,17 +31,4 @@ class FirestoreService {
   Future<void> deleteRecipe(String id) async {
     await _firestore.collection(_collection).doc(id).delete();
   }
-
-  Stream<List<Recipe>> searchRecipes(String query) {
-    return _firestore
-        .collection(_collection)
-        .orderBy('recipeName')
-        .startAt([query])
-        .endAt(['$query\uf8ff'])
-        .snapshots()
-        .map(
-          (s) =>
-              s.docs.map((d) => Recipe.fromFirestore(d.data(), d.id)).toList(),
-        );
-  }
 }

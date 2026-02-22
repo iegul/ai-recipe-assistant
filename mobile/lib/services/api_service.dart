@@ -31,7 +31,6 @@ class ApiService {
     } else {
       final file = imageFile as File;
 
-      // Resmi sıkıştır
       final compressed = await FlutterImageCompress.compressWithFile(
         file.absolute.path,
         minWidth: 600,

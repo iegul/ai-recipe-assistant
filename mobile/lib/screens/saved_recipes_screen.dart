@@ -80,40 +80,19 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 5),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 4,
+                      Row(
                         children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.timer,
-                                size: 14,
-                                color: Colors.grey[600],
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                recipe.prepTime,
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                            ],
+                          Icon(Icons.timer, size: 14, color: Colors.grey[600]),
+                          const SizedBox(width: 5),
+                          Text(recipe.prepTime),
+                          const SizedBox(width: 15),
+                          Icon(
+                            Icons.bar_chart,
+                            size: 14,
+                            color: Colors.grey[600],
                           ),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.bar_chart,
-                                size: 14,
-                                color: Colors.grey[600],
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                recipe.difficulty,
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                            ],
-                          ),
+                          const SizedBox(width: 5),
+                          Text(recipe.difficulty),
                         ],
                       ),
                       const SizedBox(height: 5),

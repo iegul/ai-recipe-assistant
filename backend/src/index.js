@@ -11,8 +11,8 @@ dotenv.config();
 
 const app = express();
 app.use(cors());
-app.use(express.json({ limit: "1000mb" }));
-app.use(express.urlencoded({ limit: "100mb", extended: true }));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 const saveRecipe = (data) =>
   db.collection("recipes").add({
@@ -48,11 +48,6 @@ app.post("/generate-recipe", async (req, res) => {
 app.post("/generate-recipe-from-image", async (req, res) => {
   try {
     const { image, mimeType = "image/jpeg" } = req.body;
-    console.log(
-      "Image size (MB):",
-      ((image?.length * 0.75) / 1024 / 1024).toFixed(2),
-    );
-    console.log("mimeType:", mimeType);
 
     if (!image) return res.status(400).json({ error: "Image required" });
 

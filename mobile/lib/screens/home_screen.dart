@@ -295,7 +295,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               const SizedBox(width: 12),
                               const Flexible(
-                                // bunu ekle
                                 child: Text(
                                   'Malzemelerinizi Girin',
                                   style: TextStyle(
